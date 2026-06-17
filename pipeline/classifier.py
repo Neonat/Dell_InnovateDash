@@ -1,3 +1,4 @@
+from scipy.special import softmax
 from sentence_transformers import CrossEncoder
 
 from pipeline.models import ClassificationResult
@@ -28,7 +29,7 @@ BUCKET_DESCRIPTIONS = {
     "end_of_life": "palliative care, hospice, or end-of-life planning",
 }
 
-_THRESHOLD = 0.5
+_THRESHOLD = 0.15
 
 
 def classify(text: str) -> ClassificationResult:
@@ -41,7 +42,9 @@ def classify(text: str) -> ClassificationResult:
     matched = []
     best_score = 0.0
     for bucket, score_arr in zip(PROBLEM_BUCKETS, scores):
-        entailment = float(score_arr[2])
+        # score_arr is raw logits [contradiction, entailment, neutral]
+        probs = softmax(score_arr)
+        entailment = float(probs[1])
         if entailment > _THRESHOLD:
             matched.append(bucket)
         if entailment > best_score:

@@ -1,4 +1,5 @@
 import re
+from scipy.special import softmax
 from transformers import pipeline as hf_pipeline
 from sentence_transformers import CrossEncoder
 
@@ -86,7 +87,9 @@ def analyse(text: str) -> SentimentResult:
     # Tier 1 keyword check
     for keyword in TIER1_KEYWORDS:
         if keyword in stripped:
-            raw = _sentiment_pipe(text)[0]
+            raw = _sentiment_pipe(text)
+            while isinstance(raw, list):
+                raw = raw[0]
             label = _normalise_label(raw["label"])
             score = float(raw["score"])
             return SentimentResult(
@@ -99,7 +102,9 @@ def analyse(text: str) -> SentimentResult:
             )
 
     # Sentiment
-    raw = _sentiment_pipe(text)[0]
+    raw = _sentiment_pipe(text)
+    while isinstance(raw, list):
+        raw = raw[0]
     label = _normalise_label(raw["label"])
     score = float(raw["score"])
     emotion = _detect_emotion(text)
@@ -108,10 +113,11 @@ def analyse(text: str) -> SentimentResult:
     scores = _nli_model.predict(
         [(text, "The person is expressing distress, fear, or danger.")]
     )
-    # CrossEncoder NLI returns [contradiction, neutral, entailment]
-    entailment_score = float(scores[0][2])
+    # CrossEncoder NLI returns raw logits [contradiction, entailment, neutral]
+    probs = softmax(scores[0])
+    entailment_score = float(probs[1])
 
-    if entailment_score > 0.65:
+    if entailment_score > 0.97:
         return SentimentResult(
             label=label,
             score=score,
