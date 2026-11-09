@@ -1,8 +1,8 @@
-# Responsible AI text pipeline
+# Social-service text pipeline
 
-A Python prototype developed for Dell InnovateDash that turns a social-service conversation into structured JSON. It combines local PII detection, anonymisation, sentiment and escalation signals, response generation, and problem-category classification.
+A Python prototype built for the **Dell InnovateDash 2026 hackathon** to turn a social-service conversation into a structured response and triage signals. It combines local PII detection, anonymisation, sentiment and escalation signals, response generation, and problem-category classification.
 
-The input is plain text. This repository contains a FastAPI service and a command-line entry point, with no frontend or database.
+The implemented service accepts plain text through a FastAPI endpoint or command-line entry point and returns JSON. It has no frontend, speech-to-text component or database.
 
 ## Processing flow
 
@@ -17,8 +17,8 @@ The local models are `cardiffnlp/twitter-roberta-base-sentiment-latest`, `cross-
 ## Run with Docker Compose
 
 ```bash
-git clone https://github.com/Neonat/Dell_InnovateDash.git
-cd Dell_InnovateDash
+git clone https://github.com/Neonat/social-service-text-pipeline.git
+cd social-service-text-pipeline
 cp .env.example .env
 ```
 
